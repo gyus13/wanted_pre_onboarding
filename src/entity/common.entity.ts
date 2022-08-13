@@ -15,7 +15,7 @@ export abstract class CommonEntity {
 
   @ApiProperty()
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  updatedAt: string;
 
   @ApiProperty()
   @Column({ default: 'ACTIVE' })

@@ -5,7 +5,7 @@ import { getManager, Repository, Connection } from 'typeorm';
 import { Company } from '../entity/company.entity';
 import { Post } from '../entity/post.entity';
 import { Apply } from '../entity/apply.entity';
-import { makeResponse } from '../config/function';
+import { defaultCurrentDateTime, makeResponse } from '../config/function';
 import { response } from '../config/response.utils';
 
 @Injectable()
@@ -22,21 +22,40 @@ export class RecruitService {
     private connection: Connection,
   ) {}
 
-  async createPost() {
+  async createPost(postPostRequestDto) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      // const ticketCount = await getManager()
-      //   .createQueryBuilder(User, 'user')
-      //   .select('ticket.id')
-      //   .where('ticket.isSuccess IN (:isSuccess)', { isSuccess: 'NotSuccess' })
-      //   .getMany();
+      const post = new Post();
+      post.companyId = postPostRequestDto.companyId;
+      post.position = postPostRequestDto.position;
+      post.reward = postPostRequestDto.reward;
+      post.text = postPostRequestDto.text;
+      post.tech = postPostRequestDto.tech;
+      post.createdAt = defaultCurrentDateTime();
+      post.updatedAt = defaultCurrentDateTime();
+      const postResult = await queryRunner.manager.save(post);
 
-      const data = {};
+      const data = {
+        companyId: postResult.companyId,
+        position: postResult.position,
+        reward: postResult.reward,
+        text: postResult.text,
+        tech: postResult.tech,
+      };
 
-      // const result = makeResponse(response.SUCCESS, data);
+      const result = makeResponse(response.SUCCESS, data);
 
-      // return result;
+      await queryRunner.commitTransaction();
+
+      return result;
     } catch (error) {
-      // return response.ERROR;
+      // Rollback
+      await queryRunner.rollbackTransaction();
+      return response.ERROR;
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -181,7 +200,7 @@ export class RecruitService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const isExistApply = await this.postRepository.findOne({
+      const isExistApply = await this.applyRepository.findOne({
         where: { userId: applyPostRequestDto.userId },
       });
 
@@ -192,6 +211,8 @@ export class RecruitService {
       const apply = new Apply();
       apply.userId = applyPostRequestDto.userId;
       apply.postId = applyPostRequestDto.postId;
+      apply.createdAt = defaultCurrentDateTime();
+      apply.updatedAt = defaultCurrentDateTime();
       const applyResult = await queryRunner.manager.save(apply);
 
       const data = {

@@ -1,6 +1,13 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class postPostRequestDto {
+export class PostPostRequestDto {
+  @ApiProperty({
+    example: 1,
+    description: '회사 id',
+    required: true,
+  })
+  companyId: number;
+
   @ApiProperty({
     example: '백엔드 주니어 개발자',
     description: '포지션',
