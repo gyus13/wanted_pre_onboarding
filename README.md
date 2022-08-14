@@ -137,8 +137,24 @@ const queryResult = await getManager()
 ```
 
 ### 6. 채용공고 지원
+* 만약 jwt가 있었다면, jwt의 payload에 userId를 담아 보냅니다.
 ```bash
-# development
-$ npm run start
+# Body로 userId, postId를 받아서 채용공고 지원.
+// 지원 여부 확인
+      const isExistApply = await this.applyRepository.findOne({
+        where: { userId: applyPostRequestDto.userId },
+      });
+
+      if (isExistApply) {
+        return response.EXIST_APPLY_USER;
+      }
+
+// 지원 생성
+      const apply = new Apply();
+      apply.userId = applyPostRequestDto.userId;
+      apply.postId = applyPostRequestDto.postId;
+      apply.createdAt = defaultCurrentDateTime();
+      apply.updatedAt = defaultCurrentDateTime();
+      const applyResult = await queryRunner.manager.save(apply);
 ```
 
