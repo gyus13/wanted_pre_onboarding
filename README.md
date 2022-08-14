@@ -38,15 +38,26 @@ const queryRunner = this.connection.createQueryRunner();
 ```
 
 ### 2. 채용공고 수정
+* 데이터를 담을 dto를 작성하여, PATCH메소드를 활용하여 Request합니다.
 ```bash
-# development
-$ npm run start
+# postPostRequestDto에 담아서 service layer에서 해당 데이터를 가지고 채용공고를 수정합니다.
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { position: postPostRequestDto.position },
+      );
+
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { reward: postPostRequestDto.reward },
+      );
 ```
 
 ### 3. 채용공고 삭제
 ```bash
-# development
-$ npm run start
+# parameter로 postId를 받아서 service layer에서 해당 채용공고를 삭제합니다.
+      await queryRunner.manager.delete(Post, { id: id });
 ```
 
 ### 4. 채용공고 목록 조회

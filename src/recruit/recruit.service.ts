@@ -59,39 +59,78 @@ export class RecruitService {
     }
   }
 
-  async editPost() {
+  async editPost(postPostRequestDto, id) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      // const ticketCount = await getManager()
-      //   .createQueryBuilder(User, 'user')
-      //   .select('ticket.id')
-      //   .where('ticket.isSuccess IN (:isSuccess)', { isSuccess: 'NotSuccess' })
-      //   .getMany();
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { position: postPostRequestDto.position },
+      );
 
-      const data = {};
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { reward: postPostRequestDto.reward },
+      );
 
-      // const result = makeResponse(response.SUCCESS, data);
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { text: postPostRequestDto.text },
+      );
 
-      // return result;
+      await queryRunner.manager.update(
+        Post,
+        { id: id },
+        { tech: postPostRequestDto.tech },
+      );
+
+      const data = {
+        position: postPostRequestDto.position,
+        reward: postPostRequestDto.reward,
+        text: postPostRequestDto.text,
+        tech: postPostRequestDto.tech,
+      };
+
+      const result = makeResponse(response.SUCCESS, data);
+
+      await queryRunner.commitTransaction();
+
+      return result;
     } catch (error) {
-      // return response.ERROR;
+      // Rollback
+      await queryRunner.rollbackTransaction();
+      return response.ERROR;
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  async deletePost() {
+  async deletePost(id) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      // const ticketCount = await getManager()
-      //   .createQueryBuilder(User, 'user')
-      //   .select('ticket.id')
-      //   .where('ticket.isSuccess IN (:isSuccess)', { isSuccess: 'NotSuccess' })
-      //   .getMany();
+      await queryRunner.manager.delete(Post, { id: id });
 
-      const data = {};
+      const data = {
+        id: id,
+      };
 
-      // const result = makeResponse(response.SUCCESS, data);
+      const result = makeResponse(response.SUCCESS, data);
 
-      // return result;
+      await queryRunner.commitTransaction();
+
+      return result;
     } catch (error) {
-      // return response.ERROR;
+      // Rollback
+      await queryRunner.rollbackTransaction();
+      return response.ERROR;
+    } finally {
+      await queryRunner.release();
     }
   }
 

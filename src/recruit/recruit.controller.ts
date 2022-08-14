@@ -31,13 +31,13 @@ export class RecruitController {
     @Body() postPostRequestDto: PostPostRequestDto,
     @Param('postId') id: number,
   ) {
-    return await this.recruitService.editPost();
+    return await this.recruitService.editPost(postPostRequestDto, id);
   }
 
   @ApiOperation({ summary: '공고삭제' })
   @Delete('/:postId')
   async deletePost(@Param('postId') id: number) {
-    return await this.recruitService.deletePost();
+    return await this.recruitService.deletePost(id);
   }
 
   @ApiOperation({ summary: '공고조회' })
