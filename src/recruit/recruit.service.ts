@@ -27,6 +27,7 @@ export class RecruitService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // 객체를 생성하여 Post 생성
       const post = new Post();
       post.companyId = postPostRequestDto.companyId;
       post.position = postPostRequestDto.position;
@@ -64,6 +65,7 @@ export class RecruitService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // 공고 수정
       await queryRunner.manager.update(
         Post,
         { id: id },
@@ -114,6 +116,7 @@ export class RecruitService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // 공고 삭제
       await queryRunner.manager.delete(Post, { id: id });
 
       const data = {
@@ -136,6 +139,7 @@ export class RecruitService {
 
   async getPost(request) {
     try {
+      // 공고 조회
       const queryResult = await getManager()
         .createQueryBuilder(Post, 'post')
         .leftJoin(Company, 'company', 'post.companyId = company.id')
@@ -185,6 +189,7 @@ export class RecruitService {
 
   async getPostByPostId(id) {
     try {
+      // postId에 해당하는 post 조회
       const queryResult = await getManager()
         .createQueryBuilder(Post, 'post')
         .leftJoin(Company, 'company', 'post.companyId = company.id')
@@ -203,10 +208,12 @@ export class RecruitService {
         ])
         .getRawOne();
 
+      // 해당 채용공고의 회사 이름으로 회사 조회
       const company = await this.companyRepository.findOne({
         where: { name: queryResult.name },
       });
 
+      // 회사의 채용공고 id 검색
       const companyPosts = await getManager()
         .createQueryBuilder(Post, 'post')
         .where('post.companyId In (:companyId)', { companyId: company.id })
@@ -239,6 +246,7 @@ export class RecruitService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // 지원 여부 확인
       const isExistApply = await this.applyRepository.findOne({
         where: { userId: applyPostRequestDto.userId },
       });
@@ -247,6 +255,7 @@ export class RecruitService {
         return response.EXIST_APPLY_USER;
       }
 
+      // 지원 생성
       const apply = new Apply();
       apply.userId = applyPostRequestDto.userId;
       apply.postId = applyPostRequestDto.postId;

@@ -103,8 +103,37 @@ if (request.query.keyword) {
 
 ### 5. 채용공고 상세 조회
 ```bash
-# development
-$ npm run start
+# postId를 path variable로 받아서 채용 상세 페이지 조회
+const queryResult = await getManager()
+        .createQueryBuilder(Post, 'post')
+        .leftJoin(Company, 'company', 'post.companyId = company.id')
+        .where('post.id In (:postId)', { postId: id })
+        .select([
+          'post.id as postId',
+          'post.position as position',
+          'post.reward as reward',
+          'post.tech as tech',
+          'post.text as text',
+        ])
+        .addSelect([
+          'company.name as name',
+          'company.country as country',
+          'company.region as region',
+        ])
+        .getRawOne();
+        
+# 해당 Post를 올린 회사의 다른 채용 공고 id 리턴
+// 해당 채용공고의 회사 이름으로 회사 조회
+      const company = await this.companyRepository.findOne({
+        where: { name: queryResult.name },
+      });
+
+// 회사의 채용공고 id 검색
+      const companyPosts = await getManager()
+        .createQueryBuilder(Post, 'post')
+        .where('post.companyId In (:companyId)', { companyId: company.id })
+        .select('post.id')
+        .getMany();
 ```
 
 ### 6. 채용공고 지원
