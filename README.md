@@ -56,14 +56,49 @@ const queryRunner = this.connection.createQueryRunner();
 
 ### 3. 채용공고 삭제
 ```bash
-# parameter로 postId를 받아서 service layer에서 해당 채용공고를 삭제합니다.
+# DELETE 메소드로 parameter postId를 받아서 service layer에서 해당 채용공고를 삭제합니다.
       await queryRunner.manager.delete(Post, { id: id });
 ```
 
-### 4. 채용공고 목록 조회
+### 4. 채용공고 목록 조회 (검색 기능 구현)
 ```bash
-# development
-$ npm run start
+# GET 방식으로 요청시 채용공고 목록 조회가 가능합니다.
+const queryResult = await getManager()
+        .createQueryBuilder(Post, 'post')
+        .leftJoin(Company, 'company', 'post.companyId = company.id')
+        .select([
+          'post.id as postId',
+          'post.position as position',
+          'post.reward as reward',
+          'post.tech as tech',
+        ])
+        .addSelect([
+          'company.name as name',
+          'company.country as country',
+          'company.region as region',
+        ])
+        .getRawMany()
+# queryString으로 검색어를 요청 할시 해당하는 데이터를 리턴 합니다.
+if (request.query.keyword) {
+        await queryResult.orWhere('post.position like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+        await queryResult.orWhere('post.reward like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+        await queryResult.orWhere('post.tech like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+        await queryResult.orWhere('company.name like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+        await queryResult.orWhere('company.country like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+        await queryResult.orWhere('company.region like :keyword', {
+          keyword: `%${request.query.keyword}%`,
+        });
+      }
 ```
 
 ### 5. 채용공고 상세 조회
